@@ -167,7 +167,7 @@ class BeelineCabinet:
                     self.cookies[cookie[0]] = cookie[1]
 
 
-def main(login=None, password=None, noprint=False):
+def main(login=None, password=None, no_session=True, no_print=False):
     # Get arguments
     if login is None:
         if len(sys.argv) == 2:
@@ -182,7 +182,7 @@ def main(login=None, password=None, noprint=False):
             return
 
     # Get current date
-    if not noprint:
+    if not no_print:
         loc = locale.getlocale()
         locale.setlocale(locale.LC_ALL, 'C')
         date = datetime.datetime.utcnow().strftime("%d %b %Y %H:%M:%S UTC")
@@ -190,7 +190,12 @@ def main(login=None, password=None, noprint=False):
         print('Date: {0}'.format(date))
 
     # Sign in to the cabinet
-    bee = BeelineCabinet('{0}.session'.format(login))
+    if no_session:
+        session_filename = None
+    else:
+        session_filename = '{0}.session'.format(login)
+
+    bee = BeelineCabinet(session_filename)
     try:
         bee.auth(login, password)
     except PermissionError:
@@ -206,7 +211,7 @@ def main(login=None, password=None, noprint=False):
         pass
 
     # Print results
-    if not noprint:
+    if not no_print:
         if balance:
             print('Account: +7{0}'.format(login))
             print('Balance: {0} RUB'.format(balance))
@@ -222,4 +227,5 @@ def main(login=None, password=None, noprint=False):
 
 if __name__ == '__main__':
     # Alternatively you can pass params to main() and get values directly
+    # Set no_session=False to save cookies to file (may cause update delays)
     main()
